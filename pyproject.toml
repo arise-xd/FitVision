@@ -1,0 +1,26 @@
+[project]
+name = "fitvision"
+version = "0.1.0"
+description = "Video-based exercise technique analysis"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "mediapipe==0.10.33",
+    "numpy>=1.26,<2",
+    "opencv-contrib-python>=4.10,<4.12",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8,<9",
+    "ruff>=0.12,<0.15",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

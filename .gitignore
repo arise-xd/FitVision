@@ -216,3 +216,21 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# FitVision local data and generated artifacts
+.DS_Store
+
+/data/raw/
+/data/processed/
+/outputs/
+
+*.mp4
+*.mov
+*.avi
+*.mkv
+
+/models/*.task
+/models/*.tflite
+/models/*.joblib
+/models/*.pkl

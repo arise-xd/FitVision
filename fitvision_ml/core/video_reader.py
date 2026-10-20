@@ -58,3 +58,57 @@ def read_video_metadata(video_path: str | Path) -> VideoMetadata:
 
     finally:
         video_file.release()
+
+
+class VideoFrameReader:
+    def __init__(self, video_path: str | Path):
+        self.video_path = Path(video_path)
+        if not self.video_path.is_file():
+            raise VideoReadError(f"Video file does not exist: {self.video_path}")
+
+        self.video_metadata = read_video_metadata(video_path)
+        self.capture = cv2.VideoCapture(str(video_path))
+        if not self.capture.isOpened():
+            raise VideoReadError(f"Cannot open video file: {self.video_path}")
+
+        self.next_frame_index = 0
+
+    def close(self) -> None:
+        if self.capture is not None:
+            self.capture.release()
+            self.capture = None
+
+    def read_next_frame(self) -> VideoFrame | None:
+        if self.capture is None:
+            return None
+
+        success, bgr_image = self.capture.read()
+
+        if not success:
+            self.close()
+            return None
+
+        frame_index = self.next_frame_index
+        self.next_frame_index += 1
+        timestamp_ms = self.capture.get(cv2.CAP_PROP_POS_MSEC)
+
+        return VideoFrame(
+            frame_index=frame_index, frame_timestamp_ms=timestamp_ms, bgr_image=bgr_image
+        )
+
+    # For using in "with . as ."
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    # for using in "for"
+    def __iter__(self):
+        return self
+
+    def __next__(self) -> VideoFrame:
+        frame = self.read_next_frame()
+        if frame is None:
+            raise StopIteration
+        return frame

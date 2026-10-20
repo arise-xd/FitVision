@@ -14,9 +14,5 @@ public record AnalysisCreateRequest(
     ViewType view,
 
     @NotBlank(message = "videoKey is required")
-    @Pattern(
-        regexp = "^videos/[a-zA-Z0-9_-]+/[a-zA-Z0-9_.-]+\\.(mp4|mov|avi)$",
-        message = "videoKey must match videos/{userId}/{filename}.{ext}"
-    )
     String videoKey
 ) {}

@@ -1,3 +1,9 @@
 spring:
   application:
     name: backend-new
+aws:
+  endpoint: http://localhost:9010
+  access-key: admin
+  secret-key: admin123
+  bucket: fitvision-uploads
+  region: us-east-1

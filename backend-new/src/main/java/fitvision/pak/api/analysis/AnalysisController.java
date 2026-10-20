@@ -1,4 +1,4 @@
-package fitvision.pak.api.controller;
+package fitvision.pak.api.analysis;
 
 import fitvision.pak.database.services.AnalysisService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,4 +12,8 @@ public class AnalysisController {
         this.analysisService = analysisService;
     }
 
+    @GetMapping
+    public String getServiceResponse() {
+        return analysisService.getServiceResponse();
+    }
 }

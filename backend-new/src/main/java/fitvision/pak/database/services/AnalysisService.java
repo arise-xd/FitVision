@@ -4,4 +4,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AnalysisService {
+    public String getServiceResponse() {
+        return "FirVision";
+    }
 }

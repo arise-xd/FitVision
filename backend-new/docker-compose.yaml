@@ -1,0 +1,27 @@
+services:
+  minio:
+    image: cgr.dev/chainguard/minio:latest
+    container_name: minio-example
+    user: "0:0"
+    command: server /data --address ":9010" --console-address ":9011"
+    restart: unless-stopped
+    environment:
+      MINIO_ACCESS_KEY: admin
+      MINIO_SECRET_KEY: admin123
+    ports:
+      - "9010:9010"   # S3 API (Spring Boot will come knocking here)
+      - "9011:9011"   # Web-console (You access this using your browser)
+    volumes:
+      - minio-data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 1024m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  minio-data:

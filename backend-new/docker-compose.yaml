@@ -6,8 +6,8 @@ services:
     command: server /data --address ":9010" --console-address ":9011"
     restart: unless-stopped
     environment:
-      MINIO_ACCESS_KEY: admin
-      MINIO_SECRET_KEY: admin123
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin123
     ports:
       - "9010:9010"   # S3 API (Spring Boot will come knocking here)
       - "9011:9011"   # Web-console (You access this using your browser)

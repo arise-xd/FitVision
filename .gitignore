@@ -225,10 +225,10 @@ __marimo__/
 /data/processed/
 /outputs/
 
-*.mp4
-*.mov
-*.avi
-*.mkv
+# *.mp4
+# *.mov
+# *.avi
+# *.mkv
 
 /models/*.task
 /models/*.tflite

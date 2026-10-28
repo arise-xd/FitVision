@@ -1,28 +1,20 @@
-#запускается из корневой папки проекта через  uv run scripts/inspect_pose.py
+# Run from the project root: uv run --locked python -m scripts.inspect_pose
 import argparse
-import sys
 from pathlib import Path
+
 import cv2
-import mediapipe as mp
+from mediapipe.tasks.python.vision import PoseLandmark, PoseLandmarksConnections
 
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
-from fitvision_ml.core.video_reader import VideoFrameReader
 from fitvision_ml.core.pose_analyzer import PoseAnalyzer
+from fitvision_ml.core.video_reader import VideoFrameReader
 
-POSE_CONNECTIONS = [
-    (11, 12), (11, 13), (13, 15), (15, 17), (15, 19), (15, 21), (17, 19),
-    (12, 14), (14, 16), (16, 18), (16, 20), (16, 22), (18, 20), (11, 23),
-    (12, 24), (23, 24), (23, 25), (24, 26), (25, 27), (26, 28), (27, 29),
-    (28, 30), (29, 31), (30, 32), (27, 31), (28, 32)
-]
-
+POSE_CONNECTIONS = PoseLandmarksConnections.POSE_LANDMARKS
 
 
 def draw_skeleton(image, keypoints, visibility_threshold=0.5):
     h, w, _ = image.shape
     coord_map = {}
-    
+
     for i in range(11, len(keypoints)):
         kp = keypoints[i]
         if kp.visibility >= visibility_threshold:
@@ -32,70 +24,71 @@ def draw_skeleton(image, keypoints, visibility_threshold=0.5):
 
     for connection in POSE_CONNECTIONS:
         try:
-            start_idx = connection[0]
-            end_idx = connection[1]
+            start_idx = connection.start
+            end_idx = connection.end
 
-            from mediapipe.tasks.python.vision import PoseLandmark
             start_name = PoseLandmark(start_idx).name
             end_name = PoseLandmark(end_idx).name
-            
+
             if start_name in coord_map and end_name in coord_map:
                 cv2.line(image, coord_map[start_name], coord_map[end_name], (255, 0, 0), 2)
         except (ValueError, IndexError, AttributeError):
             continue
 
+
 def main():
-
-    project_root = Path(__file__).resolve().parents[1]
-    default_video = project_root / "fitvision_ml" / "dataset" / "v_BodyWeightSquats_g15_c03.avi"
-
-    parser = argparse.ArgumentParser(description="Покадровый просмотр видео из датасета с разметкой MediaPipe")
-    parser.add_argument(
-        "--video", 
-        type=str, 
-        default=str(default_video), 
-        help="Путь к видеофайлу"
+    parser = argparse.ArgumentParser(
+        description="Frame-by-frame video preview with MediaPipe pose landmarks."
     )
+
+    parser.add_argument(
+        "video_path",
+        type=Path,
+        help="Path to the video file.",
+    )
+
     args = parser.parse_args()
-    video_path = Path(args.video)
-    
-    print(f"Инициализация. Открываем файл: {video_path.name}")
-    print("\nУправление в окне видео:")
-    print("  [Любая клавиша] - Шагнуть на 1 кадр вперед")
-    print("  [Клавиша 'q']   - Выйти из скрипта")
+    video_path = args.video_path
+
+    print(f"Opening video: {video_path.name}")
+    print("\nVideo controls:")
+    print("  [Any key] - Move to the next frame")
+    print("  [q]       - Exit")
 
     try:
-        # Запуск ридера и анализатора через контекстные менеджеры
+        # Open the video reader and pose analyzer using context managers
         with VideoFrameReader(video_path) as reader, PoseAnalyzer() as analyzer:
-            
             for frame in reader:
-                # Делаем копию кадра для отрисовки графики
+                # Copy the frame so the original image is not modified
                 display_image = frame.bgr_image.copy()
-                
-                # Получаем точки через PoseAnalyzer
+
+                # Detect pose landmarks in the current frame
                 keypoints = analyzer.get_points(frame)
-                
-                # Рисуем скелет поверх кадра
+
+                # Draw the skeleton over the frame
                 draw_skeleton(display_image, keypoints)
-                
+
                 TARGET_WIDTH = 960
                 TARGET_HEIGHT = 720
-                resized_image = cv2.resize(display_image, (TARGET_WIDTH, TARGET_HEIGHT), interpolation=cv2.INTER_LINEAR)
-            
+                resized_image = cv2.resize(
+                    display_image, (TARGET_WIDTH, TARGET_HEIGHT), interpolation=cv2.INTER_LINEAR
+                )
+
                 cv2.imshow("FitVision - Pose Inspector", resized_image)
 
-                # Замираем на кадре до нажатия любой клавиши
+                # Wait for a key before moving to the next frame
                 key = cv2.waitKey(0) & 0xFF
-                if key == ord('q'):
-                    print("Выход по нажатию 'q'.")
+                if key == ord("q"):
+                    print("Exiting pose inspector.")
                     break
-                    
-            print("Видео успешно считано до конца.")
-            
-    except Exception as e:
-        print(f"\n[Ошибка работы скрипта]: {e}")
+
+            print("Video inspection finished.")
+
+    except Exception as error:
+        print(f"\n[Pose inspector error]: {error}")
     finally:
         cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     main()

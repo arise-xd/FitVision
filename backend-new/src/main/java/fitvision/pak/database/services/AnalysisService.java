@@ -5,8 +5,8 @@ import fitvision.pak.database.repository.JpaAnalysisRepository;
 import fitvision.pak.dto.requests.AnalysisCreateRequest;
 import fitvision.pak.dto.response.AnalysisCreateResponse;
 import fitvision.pak.model.AnalysisStatus;
-import fitvision.pak.model.AnalysisTask;
 import fitvision.pak.service.S3Service;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,5 +40,18 @@ public class AnalysisService {
             presigned.url(),
             presigned.expiresAt()
         );
+    }
+
+    @Transactional
+    public void confirmUpload(UUID id) {
+        AnalysisTaskEntity task = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+
+        if (task.getStatus() != AnalysisStatus.QUEUED) {
+            throw new IllegalStateException("Task is not in QUEUED state");
+        }
+
+        task.setStatus(AnalysisStatus.PROCESSING);
+        repository.save(task);
     }
 }

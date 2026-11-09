@@ -5,6 +5,7 @@ import fitvision.pak.model.Exercise;
 import fitvision.pak.model.ViewType;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -34,6 +35,7 @@ public class AnalysisTaskEntity {
     private String videoKey;
 
     @Getter
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private AnalysisStatus status;

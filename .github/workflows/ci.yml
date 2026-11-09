@@ -35,5 +35,10 @@ jobs:
       - name: Check Python formatting
         run: uv run --locked ruff format --check .
 
+      - name: Install Linux system dependencies
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y libgles2
+
       - name: Run tests
         run: uv run --locked python -m pytest

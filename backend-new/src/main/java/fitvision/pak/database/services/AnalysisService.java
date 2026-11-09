@@ -1,12 +1,16 @@
 package fitvision.pak.database.services;
 
+import fitvision.pak.config.RabbitConfig;
 import fitvision.pak.database.entity.AnalysisTaskEntity;
 import fitvision.pak.database.repository.JpaAnalysisRepository;
+import fitvision.pak.dto.AnalysisMessage;
 import fitvision.pak.dto.requests.AnalysisCreateRequest;
 import fitvision.pak.dto.response.AnalysisCreateResponse;
 import fitvision.pak.model.AnalysisStatus;
 import fitvision.pak.service.S3Service;
 import java.util.UUID;
+
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,10 +19,14 @@ public class AnalysisService {
 
     private final JpaAnalysisRepository repository;
     private final S3Service s3Service;
+    private final RabbitTemplate rabbitTemplate;
 
-    public AnalysisService(JpaAnalysisRepository repository, S3Service s3Service) {
+    public AnalysisService(JpaAnalysisRepository repository,
+                           S3Service s3Service,
+                           RabbitTemplate rabbitTemplate) {
         this.repository = repository;
         this.s3Service = s3Service;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Transactional
@@ -53,5 +61,15 @@ public class AnalysisService {
 
         task.setStatus(AnalysisStatus.PROCESSING);
         repository.save(task);
+
+        AnalysisMessage message = new AnalysisMessage(
+            task.getId(),
+            task.getVideoKey(),
+            task.getExercise(),
+            task.getView()
+        );
+
+        rabbitTemplate.convertAndSend(RabbitConfig.ANALYSIS_QUEUE, message);
+        System.out.println("Message sent to RabbitMQ for task: " + task.getId());
     }
 }

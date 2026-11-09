@@ -23,14 +23,17 @@ public class AnalysisTaskEntity {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
+    @Getter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private Exercise exercise;
 
+    @Getter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ViewType view;
 
+    @Getter
     @Column(name = "video_key", nullable = false, length = 255)
     private String videoKey;
 
@@ -66,5 +69,4 @@ public class AnalysisTaskEntity {
         this.videoKey = videoKey;
         this.status = status;
     }
-
 }

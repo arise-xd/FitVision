@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Repository
+//@Repository
 public class InMemoryAnalysisRepository implements AnalysisRepository {
     private final Map<UUID, AnalysisTask> store = new ConcurrentHashMap<>();
 

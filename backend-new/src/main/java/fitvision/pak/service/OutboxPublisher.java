@@ -1,6 +1,6 @@
 package fitvision.pak.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import fitvision.pak.config.RabbitConfig;
 import fitvision.pak.database.entity.OutboxMessage;
 import fitvision.pak.database.repository.OutboxRepository;
@@ -27,7 +27,7 @@ public class OutboxPublisher {
         this.objectMapper = objectMapper;
     }
 
-    // Запускаем каждые 5 секунд
+    // turn on every 5 seconds
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void publishMessages() {
@@ -37,17 +37,17 @@ public class OutboxPublisher {
             try {
                 AnalysisMessage analysisMessage = objectMapper.readValue(message.getPayload(), AnalysisMessage.class);
 
-                // Отправляем в RabbitMQ
+                // send to RabbitMQ
                 rabbitTemplate.convertAndSend(RabbitConfig.ANALYSIS_QUEUE, analysisMessage);
 
-                // Помечаем как отправленное
+                // marked it how sent
                 message.setStatus("SENT");
                 outboxRepository.save(message);
 
-                System.out.println("Message sent to RabbitMQ from Outbox: " + analysisMessage.id());
+                System.out.println("Message sent to RabbitMQ from Outbox: " + analysisMessage.analysisId());
             } catch (Exception e) {
                 System.err.println("Failed to send message: " + message.getId() + ". Will retry.");
-                // Оставляем статус PENDING, чтобы попробовать снова в следующую итерацию
+                // stayed status PENDING, that will try again in next integration
             }
         }
     }

@@ -7,7 +7,7 @@ spring:
     password: fitvision_password
   jpa:
     hibernate:
-      ddl-auto: update # changed on "validate" when set up Flyway
+      ddl-auto: validate
     show-sql: true
   flyway:
     enabled: true

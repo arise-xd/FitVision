@@ -43,10 +43,13 @@ public class AnalysisTaskEntity {
     @Column(nullable = false, length = 30)
     private AnalysisStatus status;
 
+    @Setter
+    @Getter
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "result_json", columnDefinition = "jsonb")
     private String resultJson;
 
+    @Getter
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 

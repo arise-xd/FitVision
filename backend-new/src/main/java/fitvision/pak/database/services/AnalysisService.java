@@ -1,5 +1,6 @@
 package fitvision.pak.database.services;
 
+import fitvision.pak.dto.response.AnalysisDetailsResponse;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import fitvision.pak.database.entity.AnalysisTaskEntity;
@@ -93,5 +94,32 @@ public class AnalysisService {
         }
 
         System.out.println("Outbox message saved for task: " + task.getId());
+    }
+
+    @Transactional
+    public void saveResult(UUID id, String resultJson) {
+        AnalysisTaskEntity task = repository.findById(id)
+            .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
+
+        if (task.getStatus() != AnalysisStatus.PROCESSING) {
+            throw new InvalidTaskStateException("Task is not in PROCESSING state");
+        }
+
+        task.setResultJson(resultJson);
+        task.setStatus(AnalysisStatus.DONE);
+        repository.save(task);
+    }
+
+    @Transactional(readOnly = true)
+    public AnalysisDetailsResponse getAnalysisDetails(UUID id) {
+        AnalysisTaskEntity task = repository.findById(id)
+            .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
+
+        return new AnalysisDetailsResponse(
+            task.getId(),
+            task.getStatus(),
+            task.getResultJson(),
+            task.getErrorMessage()
+        );
     }
 }

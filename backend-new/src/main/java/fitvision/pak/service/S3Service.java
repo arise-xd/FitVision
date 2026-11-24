@@ -2,8 +2,10 @@ package fitvision.pak.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
@@ -18,6 +20,20 @@ public class S3Service {
 
     public S3Service(S3Presigner presigner) {
         this.presigner = presigner;
+    }
+
+    public String generateDownloadUrl(String videoKey) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+            .bucket(bucket)
+            .key(videoKey)
+            .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+            .signatureDuration(Duration.ofMinutes(15))
+            .getObjectRequest(getObjectRequest)
+            .build();
+
+        return presigner.presignGetObject(presignRequest).url().toString();
     }
 
     public PresignedUrl generateUploadUrl(String videoKey) {

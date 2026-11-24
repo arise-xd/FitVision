@@ -50,6 +50,7 @@ public class AnalysisTaskEntity {
     private String resultJson;
 
     @Getter
+    @Setter
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
@@ -72,4 +73,5 @@ public class AnalysisTaskEntity {
         this.videoKey = videoKey;
         this.status = status;
     }
+
 }

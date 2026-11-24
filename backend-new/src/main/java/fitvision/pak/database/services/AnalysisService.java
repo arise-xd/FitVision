@@ -122,4 +122,13 @@ public class AnalysisService {
             task.getErrorMessage()
         );
     }
+
+    @Transactional
+    public void markAsFailed(UUID id, String errorMessage) {
+        AnalysisTaskEntity task = repository.findById(id)
+            .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+        task.setStatus(AnalysisStatus.FAILED);
+        task.setErrorMessage(errorMessage);
+        repository.save(task);
+    }
 }

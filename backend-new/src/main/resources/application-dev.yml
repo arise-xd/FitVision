@@ -13,6 +13,13 @@ spring:
     enabled: true
     locations: classpath:db/migration
   rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 3s
+          max-attempts: 3 # 1 tried + 2 retried
+          multiplier: 2.0
     host: localhost
     port: 5672
     username: fitvision_user
@@ -23,3 +30,6 @@ aws:
   secret-key: admin123
   bucket: fitvision-uploads
   region: us-east-1
+ml:
+  api:
+    url: http://localhost:8000

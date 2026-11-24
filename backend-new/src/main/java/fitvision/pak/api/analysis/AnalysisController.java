@@ -42,6 +42,14 @@ public class AnalysisController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{id}/fail")
+    public ResponseEntity<Void> receiveFailure(
+        @PathVariable("id") UUID id,
+        @RequestBody String errorMessage) {
+        analysisService.markAsFailed(id, errorMessage);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AnalysisDetailsResponse> getAnalysisDetails(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(analysisService.getAnalysisDetails(id));

@@ -4,6 +4,7 @@ import fitvision.pak.database.services.AnalysisService;
 import fitvision.pak.dto.requests.AnalysisCreateRequest;
 import fitvision.pak.dto.response.AnalysisCreateResponse;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,5 +25,11 @@ public class AnalysisController {
 
         AnalysisCreateResponse response = analysisService.createAnalysis(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/{id}/confirm")
+    public ResponseEntity<Void> confirmUpload(@PathVariable("id") UUID id) {
+        analysisService.confirmUpload(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,30 +1,53 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fitvision/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Главный экран показывает выбор видео и ракурс спереди', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const FitVisionApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('FitVision'), findsOneWidget);
+    expect(find.text('Выбрать видео'), findsOneWidget);
+    expect(find.text('Проверить технику'), findsOneWidget);
+    expect(
+      tester
+          .widget<RadioGroup<String>>(find.byType(RadioGroup<String>))
+          .groupValue,
+      'front',
+    );
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('Ракурс можно переключить на боковой и обратно', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const FitVisionApp());
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    for (final view in {'Сбоку': 'side', 'Спереди': 'front'}.entries) {
+      await tester.tap(find.text(view.key));
+      await tester.pump();
+
+      expect(
+        tester
+            .widget<RadioGroup<String>>(find.byType(RadioGroup<String>))
+            .groupValue,
+        view.value,
+      );
+    }
+  });
+
+  testWidgets('Без видео анализ не запускается и появляется подсказка', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const FitVisionApp());
+
+    await tester.tap(find.text('Проверить технику'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Пожалуйста, выберите видео файл'), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(WaitingScreen), findsNothing);
   });
 }

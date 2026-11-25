@@ -2,7 +2,7 @@
 class AnalysisRequest {
   final String videoPath;
   final String exercise; // 'squat'
-  final String view;     // 'front' или 'side'
+  final String view; // 'front' или 'side'
 
   AnalysisRequest({
     required this.videoPath,
